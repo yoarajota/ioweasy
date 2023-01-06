@@ -91,9 +91,8 @@ async function getFollowers(user) {
 
         if (oldSrollHeight !== scroll) {
           countFollowers--
-          iterationsLimit = 10;
+          iterationsLimit = 30;
         }
-
 
         iterationsLimit--;
         oldSrollHeight = scroll
@@ -108,15 +107,18 @@ async function getFollowers(user) {
         if (iterationsLimit === 0) countFollowers = 0;
       }
 
+
       let response = await page2.evaluate(query);
       await browser.close();
-      return response;
-    } catch {
+
+      console.log('chegou no return')
+      return { data: response, status: 'success' };
+    } catch (error) {
       if (tryes !== 0) {
         tryes--
         work()
       } else if (tryes === 0) {
-        return { erro: true }
+        return { erro: error, status: 'error' }
       }
     }
   }

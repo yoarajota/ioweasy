@@ -39,7 +39,13 @@ process.on("uncaughtException", (error) => {
 app.get("/followers", async (req, res) => {
   const { user } = req.body;
 
-  let followers = await getFollowers(user)
+  let loop = true;
+  let followers;
+  while (loop) {
+    followers = await getFollowers(user)
+
+    if (followers.status) loop = false
+  }
 
   return res.json({data: followers});
 });
@@ -63,3 +69,5 @@ mongoose.connect(MONGOOSE).then(
 //                                    %@*                  .&@                      .@&.
 //                                    %@*                  .&@         *.          #@&
 //                                *%%%@@&%%%    &@@,    (%%%@@%%%(     /&@@#///#&@@(
+
+
