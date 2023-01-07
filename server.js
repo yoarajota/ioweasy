@@ -4,6 +4,10 @@ const app = express();
 require("dotenv").config();
 const mongoose = require("mongoose");
 const { MONGOOSE } = process.env;
+const bodyParser = require("body-parser");
+const cron = require('node-cron');
+const { default: updateAllUsers } = require("./functions/updateAllUsers");
+const { default: testUsername } = require("./functions/testUsername");
 
 app.use((req, res, next) => {
   res.header("Acess-Control-Allow-Origin", "*");
@@ -16,8 +20,6 @@ app.use((req, res, next) => {
   next();
 });
 
-const bodyParser = require("body-parser");
-const { getFollowers } = require("./puppeteer");
 app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
@@ -36,19 +38,32 @@ process.on("uncaughtException", (error) => {
   process.exit(1); // Exit your app
 });
 
-app.get("/followers", async (req, res) => {
+app.post("/followers", async (req, res) => {
   const { user } = req.body;
+  let response;
+  let exists = testUsername(user)
+  if (!_.isEmpty(exists)) {
+    response = { message: 'asdad', status: 'success', data: { unfollowersList: exists.unfollowersList } }
+  } else {
+    const newRegister = {
+      username: user,
+    };
 
-  let loop = true;
-  let followers;
-  while (loop) {
-    followers = await getFollowers(user)
+    await InstagramUsernameData.create(newRegister);
 
-    if (followers.status) loop = false
+    response = { message: 'asdad', status: 'success' }
   }
 
-  return res.json({data: followers});
+  // let response = await get
+  return res.json(response);
 });
+
+cron.schedule('0 1 * * *', () => {
+  updateAllUsers()
+}, {
+  scheduled: true,
+  timezone: "America/Sao_Paulo"
+}).start();
 
 mongoose.connect(MONGOOSE).then(
   app.listen(8000, () => {
@@ -57,18 +72,18 @@ mongoose.connect(MONGOOSE).then(
 );
 
 
-//                                      .              .,,,,,,         .,,,,,,,,,,,,,,.
-//      #@.  (&.  .@,                 #@*              .****&@         (@/*********@@,
-//       ,@/@#    .@,               (@@@*                  .&@         *#        #@(
-//        ,@(     ,@,             /@&.%@*                  .&@                 *@#
-//        ,@(  &@@@/            /@&,  %@*                  .&@               ,&@.
-//                            ,@@,    %@*                  .&@              &@&%*
-//                          *@@*      %@*                  .&@                  .(&@/
-//                        ,&@/        %@*       %@@.       .&@                     .%@/
-//                      .&@(          %@*                  .&@                       #@*
-//                     (%%%%%%%%%%%%%%@@&%%%%              .&@                       *@(
-//                                    %@*                  .&@                      .@&.
-//                                    %@*                  .&@         *.          #@&
-//                                *%%%@@&%%%    &@@,    (%%%@@%%%(     /&@@#///#&@@(
+  //                                      .              .,,,,,,         .,,,,,,,,,,,,,,.
+  //      #@.  (&.  .@,                 #@*              .****&@         (@/*********@@,
+  //       ,@/@#    .@,               (@@@*                  .&@         *#        #@(
+  //        ,@(     ,@,             /@&.%@*                  .&@                 *@#
+  //        ,@(  &@@@/            /@&,  %@*                  .&@               ,&@.
+  //                            ,@@,    %@*                  .&@              &@&%*
+  //                          *@@*      %@*                  .&@                  .(&@/
+  //                        ,&@/        %@*       %@@.       .&@                     .%@/
+  //                      .&@(          %@*                  .&@                       #@*
+  //                     (%%%%%%%%%%%%%%@@&%%%%              .&@                       *@(
+  //                                    %@*                  .&@                      .@&.
+  //                                    %@*                  .&@         *.          #@&
+  //                                *%%%@@&%%%    &@@,    (%%%@@%%%(     /&@@#///#&@@(
 
 
