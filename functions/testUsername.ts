@@ -1,5 +1,7 @@
-import InstagramUsernameData from "../models/instagramUsernameData";
+const InstagramUsernameData = require("../models/instagramUsernameData");
 
-export default async function testUsername(user: string) {
-    return InstagramUsernameData.find({ user: user });
-}
+async function testUsername(user: string) {
+    return InstagramUsernameData.findOne({ user: user }).exec();
+  }
+
+export default testUsername

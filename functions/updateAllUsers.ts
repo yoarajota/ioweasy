@@ -1,31 +1,38 @@
-import InstagramUsernameData from "../models/instagramUsernameData";
-import { getFollowers } from "../puppeteer/puppeteer";
 import getCurrentFollowers from "./getCurrentFollowers";
 
-export default async function updateAllUsers() {
-    let query = await InstagramUsernameData.find();
+const InstagramUsernameData = require("../models/instagramUsernameData");
 
-    let allUsers: Array<string> = []
-    for (const u of query) {
-        allUsers.push(u.username)
-    }
+async function updateAllUsers() {
+  let query = await InstagramUsernameData.find();
 
-    const { status, followersListOfUsers } = await getCurrentFollowers(allUsers);
+  let allUsers: Array<string> = [];
+  for (const u of query) {
+    allUsers.push(u.username);
+  }
+  let a = await getCurrentFollowers(allUsers);
+  if (!a) return;
+  const { status, data } = a;
 
-    if (status === 'success') {
-        let date = new Date;
-        for (const key in followersListOfUsers) {
-            let unfollowersList = query.filter(x => !followersListOfUsers[key].includes(x));
+  if (status === "success") {
+    let date = new Date();
+    for (const key in data) {
+      // ENCONTRAR DENTRO DE QUERY O USERNAME CERTO
+      let userModel = query.find((element: any) => element.username === key);
+      let unfollowersList = userModel.followers.filter(
+        (x: any) => !data[key].includes(x)
+      );
 
-            InstagramUsernameData.updateOne({ name: key }, {
-                followers: followersListOfUsers[key],
-                lastUpdateFollowers: date,
-                unfollowersList: unfollowersList,
-                lastUpdateUnfollowers: date,
-            });
+      InstagramUsernameData.updateOne(
+        { name: key },
+        {
+          followers: data[key],
+          lastUpdateFollowers: date,
+          unfollowersList: unfollowersList,
+          lastUpdateUnfollowers: date,
         }
+      );
     }
-
+  }
 }
 
-module.exports = { updateAllUsers }
+export default updateAllUsers;

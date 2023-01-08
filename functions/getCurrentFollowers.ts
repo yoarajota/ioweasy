@@ -1,12 +1,8 @@
-import { getFollowers } from "../puppeteer/puppeteer";
+import getFollowers from "../puppeteer";
 
-export default async function getCurrentFollowers(users: Array<string>) {
-    let response;
-    let loop = true;
-    while (loop) {
-        response = await getFollowers(users)
-        if (response.status) loop = false
-    }
-
-    return response
+async function getCurrentFollowers(users: Array<string>) {
+  let a = await getFollowers(users);
+  return a;
 }
+
+export default getCurrentFollowers;
