@@ -19,6 +19,7 @@ const bodyParser = require("body-parser");
 const cron = require("node-cron");
 const _ = require("lodash");
 const express_1 = __importDefault(require("express"));
+const increaseOneInRequestTimes_1 = __importDefault(require("./functions/increaseOneInRequestTimes"));
 const testUsername_1 = __importDefault(require("./functions/testUsername"));
 const updateAllUsers_1 = __importDefault(require("./functions/updateAllUsers"));
 const app = (0, express_1.default)();
@@ -45,12 +46,13 @@ process.on("uncaughtException", (error) => {
 app.post("/followers", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user } = req.body;
     let response;
-    let exists = yield (0, testUsername_1.default)(user);
-    if (!_.isEmpty(exists)) {
+    let userModel = yield (0, testUsername_1.default)(user);
+    if (!_.isEmpty(userModel)) {
+        (0, increaseOneInRequestTimes_1.default)(userModel);
         response = {
-            message: "temmmm",
+            message: "",
             status: "success",
-            data: { unfollowersList: exists === null || exists === void 0 ? void 0 : exists.unfollowersList },
+            data: { unfollowersList: userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList },
         };
     }
     else {
@@ -58,12 +60,14 @@ app.post("/followers", (req, res) => __awaiter(void 0, void 0, void 0, function*
             username: user,
         };
         yield InstagramUsernameData.create(newRegister);
-        response = { message: "asdad opi oi oi oioi io io", status: "success" };
+        response = {
+            message: "username registered",
+            status: "success"
+        };
     }
     // let response = await get
     return res.json(response);
 }));
-console.log(InstagramUsernameData.find()[0]);
 cron
     .schedule("0 1 * * *", () => {
     (0, updateAllUsers_1.default)();

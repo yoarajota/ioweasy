@@ -24,18 +24,26 @@ function updateAllUsers() {
         let a = yield (0, getCurrentFollowers_1.default)(allUsers);
         if (!a)
             return;
+        console.log(a);
         const { status, data } = a;
         if (status === "success") {
             let date = new Date();
             for (const key in data) {
-                // ENCONTRAR DENTRO DE QUERY O USERNAME CERTO
                 let userModel = query.find((element) => element.username === key);
-                let unfollowersList = userModel.followers.filter((x) => !data[key].includes(x));
-                InstagramUsernameData.updateOne({ name: key }, {
-                    followers: data[key],
-                    lastUpdateFollowers: date,
-                    unfollowersList: unfollowersList,
-                    lastUpdateUnfollowers: date,
+                let unfollowersList = [];
+                if (userModel.followers) {
+                    unfollowersList = userModel.followers.filter((x) => !data[key].includes(x));
+                }
+                InstagramUsernameData.updateOne({ username: key }, {
+                    $set: {
+                        followers: JSON.stringify(data[key]),
+                        lastUpdateFollowers: date,
+                        unfollowersList: JSON.stringify(unfollowersList),
+                        lastUpdateUnfollowers: date,
+                    }
+                }, (err, collection) => {
+                    if (err)
+                        throw err;
                 });
             }
         }

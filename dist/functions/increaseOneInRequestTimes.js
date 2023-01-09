@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const InstagramUsernameData = require("../models/instagramUsernameData");
-function testUsername(user) {
+function increaseOneInRequestTimes(user) {
     return __awaiter(this, void 0, void 0, function* () {
-        return InstagramUsernameData.findOne({ username: user }).exec();
+        user.requestTimes = user.requestTimes + 1;
+        user.save();
     });
 }
-exports.default = testUsername;
+exports.default = increaseOneInRequestTimes;

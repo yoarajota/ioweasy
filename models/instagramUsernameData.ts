@@ -6,4 +6,8 @@ module.exports = mongoose.model("InstagramUsernameData", {
   lastUpdateFollowers: Date,
   unfollowersList: JSON,
   lastUpdateUnfollowers: Date,
+  requestTimes: {
+    type: Number, // Number type
+    default: 0,
+  },
 });

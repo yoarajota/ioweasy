@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const cron = require("node-cron");
 const _ = require("lodash");
 import express from "express";
+import increaseOneInRequestTimes from "./functions/increaseOneInRequestTimes";
 import testUsername from "./functions/testUsername";
 import updateAllUsers from "./functions/updateAllUsers";
 const app = express();
@@ -43,12 +44,13 @@ process.on("uncaughtException", (error) => {
 app.post("/followers", async (req, res) => {
   const { user } = req.body;
   let response;
-  let exists = await testUsername(user);
-  if (!_.isEmpty(exists)) {
+  let userModel = await testUsername(user);
+  if (!_.isEmpty(userModel)) {
+    increaseOneInRequestTimes(userModel)
     response = {
-      message: "temmmm",
+      message: "",
       status: "success",
-      data: { unfollowersList: exists?.unfollowersList },
+      data: { unfollowersList: userModel?.unfollowersList },
     };
   } else {
     const newRegister = {
@@ -57,14 +59,15 @@ app.post("/followers", async (req, res) => {
 
     await InstagramUsernameData.create(newRegister);
 
-    response = { message: "asdad opi oi oi oioi io io", status: "success" };
+    response = {
+      message: "username registered",
+      status: "success"
+    };
   }
 
   // let response = await get
   return res.json(response);
 });
-
-console.log(InstagramUsernameData.find()[0]);
 
 cron
   .schedule(
