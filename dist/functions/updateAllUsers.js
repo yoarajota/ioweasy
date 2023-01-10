@@ -13,10 +13,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const getCurrentFollowers_1 = __importDefault(require("./getCurrentFollowers"));
+const helpers_1 = __importDefault(require("./helpers"));
 const InstagramUsernameData = require("../models/instagramUsernameData");
 function updateAllUsers() {
     return __awaiter(this, void 0, void 0, function* () {
-        let query = yield InstagramUsernameData.find();
+        let query = yield InstagramUsernameData.find({ requestTimes: { $gte: 3 } }).exec();
         let allUsers = [];
         for (const u of query) {
             allUsers.push(u.username);
@@ -24,7 +25,6 @@ function updateAllUsers() {
         let a = yield (0, getCurrentFollowers_1.default)(allUsers);
         if (!a)
             return;
-        console.log(a);
         const { status, data } = a;
         if (status === "success") {
             let date = new Date();
@@ -32,14 +32,15 @@ function updateAllUsers() {
                 let userModel = query.find((element) => element.username === key);
                 let unfollowersList = [];
                 if (userModel.followers) {
-                    unfollowersList = userModel.followers.filter((x) => !data[key].includes(x));
+                    unfollowersList = JSON.parse(userModel.followers).filter((x) => !data[key].includes(x));
                 }
                 InstagramUsernameData.updateOne({ username: key }, {
                     $set: {
-                        followers: JSON.stringify(data[key]),
+                        followers: JSON.stringify((0, helpers_1.default)(data[key])),
                         lastUpdateFollowers: date,
-                        unfollowersList: JSON.stringify(unfollowersList),
+                        unfollowersList: JSON.stringify((0, helpers_1.default)(unfollowersList)),
                         lastUpdateUnfollowers: date,
+                        requestTimes: 0
                     }
                 }, (err, collection) => {
                     if (err)

@@ -52,7 +52,7 @@ app.post("/followers", (req, res) => __awaiter(void 0, void 0, void 0, function*
         response = {
             message: "",
             status: "success",
-            data: { unfollowersList: userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList },
+            data: { unfollowersList: !!(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList) ? JSON.parse(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList) : [] },
         };
     }
     else {

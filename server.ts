@@ -50,7 +50,7 @@ app.post("/followers", async (req, res) => {
     response = {
       message: "",
       status: "success",
-      data: { unfollowersList: userModel?.unfollowersList },
+      data: { unfollowersList: !!userModel?.unfollowersList ? JSON.parse(userModel?.unfollowersList) : [] },
     };
   } else {
     const newRegister = {

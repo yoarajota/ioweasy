@@ -12,8 +12,8 @@ const query = () => {
     arr.push(
       x.children[1]?.firstChild?.firstChild?.firstChild?.firstChild?.firstChild
         ?.firstChild?.firstChild?.firstChild?.data ??
-        x.children[1]?.firstChild?.firstChild?.firstChild?.firstChild
-          ?.firstChild?.firstChild?.firstChild?.data
+      x.children[1]?.firstChild?.firstChild?.firstChild?.firstChild
+        ?.firstChild?.firstChild?.firstChild?.data
     );
   }
   return arr;
