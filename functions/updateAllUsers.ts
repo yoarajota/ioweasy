@@ -25,8 +25,6 @@ async function updateAllUsers() {
         );
       }
 
-
-      
       InstagramUsernameData.updateOne(
         { username: key },
         {
