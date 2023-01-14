@@ -8,6 +8,8 @@ import express from "express";
 import increaseOneInRequestTimes from "./functions/increaseOneInRequestTimes";
 import testUsername from "./functions/testUsername";
 import updateAllUsers from "./functions/updateAllUsers";
+import debug from "./puppeteer/debug";
+import testIfUsernameExists from "./puppeteer/testIfUsernameExists";
 const app = express();
 const mongoose = require("mongoose");
 const InstagramUsernameData = require("./models/instagramUsernameData");
@@ -41,31 +43,47 @@ process.on("uncaughtException", (error) => {
   process.exit(1); // Exit your app
 });
 
+
 app.post("/followers", async (req, res) => {
   const { user } = req.body;
   let response;
   let userModel = await testUsername(user);
   if (!_.isEmpty(userModel)) {
     increaseOneInRequestTimes(userModel)
-    response = {
-      message: "",
-      status: "success",
-      data: { unfollowersList: !!userModel?.unfollowersList ? JSON.parse(userModel?.unfollowersList) : [] },
-    };
+    if (!!userModel?.unfollowersList) {
+      let parsed = JSON.parse(userModel?.unfollowersList);
+      response = {
+        message: parsed.length > 1 ? 'unfollowers list' : 'seems like no one unfollowed you',
+        status: "success",
+        data: { unfollowersList: parsed },
+      };
+    } else {
+      response = {
+        message: "the server didnt updated your unfollower list yet",
+        status: "success",
+        data: { unfollowersList: [] },
+      };
+    }
   } else {
     const newRegister = {
       username: user,
     };
 
-    await InstagramUsernameData.create(newRegister);
+    if (await testIfUsernameExists(user)) {
+      await InstagramUsernameData.create(newRegister);
 
-    response = {
-      message: "username registered",
-      status: "success"
-    };
+      response = {
+        message: "username registered, c u soon :)",
+        status: "success"
+      };
+    } else {
+      response = {
+        message: "username doesnt exists",
+        status: "success"
+      };
+    }
   }
 
-  // let response = await get
   return res.json(response);
 });
 

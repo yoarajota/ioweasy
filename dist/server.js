@@ -22,6 +22,7 @@ const express_1 = __importDefault(require("express"));
 const increaseOneInRequestTimes_1 = __importDefault(require("./functions/increaseOneInRequestTimes"));
 const testUsername_1 = __importDefault(require("./functions/testUsername"));
 const updateAllUsers_1 = __importDefault(require("./functions/updateAllUsers"));
+const testIfUsernameExists_1 = __importDefault(require("./puppeteer/testIfUsernameExists"));
 const app = (0, express_1.default)();
 const mongoose = require("mongoose");
 const InstagramUsernameData = require("./models/instagramUsernameData");
@@ -49,23 +50,40 @@ app.post("/followers", (req, res) => __awaiter(void 0, void 0, void 0, function*
     let userModel = yield (0, testUsername_1.default)(user);
     if (!_.isEmpty(userModel)) {
         (0, increaseOneInRequestTimes_1.default)(userModel);
-        response = {
-            message: "",
-            status: "success",
-            data: { unfollowersList: !!(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList) ? JSON.parse(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList) : [] },
-        };
+        if (!!(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList)) {
+            let parsed = JSON.parse(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList);
+            response = {
+                message: parsed.length > 1 ? 'unfollowers list' : 'seems like no one unfollowed you',
+                status: "success",
+                data: { unfollowersList: parsed },
+            };
+        }
+        else {
+            response = {
+                message: "the server didnt updated your unfollower list yet",
+                status: "success",
+                data: { unfollowersList: [] },
+            };
+        }
     }
     else {
         const newRegister = {
             username: user,
         };
-        yield InstagramUsernameData.create(newRegister);
-        response = {
-            message: "username registered",
-            status: "success"
-        };
+        if (yield (0, testIfUsernameExists_1.default)(user)) {
+            yield InstagramUsernameData.create(newRegister);
+            response = {
+                message: "username registered, c u soon :)",
+                status: "success"
+            };
+        }
+        else {
+            response = {
+                message: "username doesnt exists",
+                status: "success"
+            };
+        }
     }
-    // let response = await get
     return res.json(response);
 }));
 cron
