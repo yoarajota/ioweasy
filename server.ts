@@ -6,9 +6,9 @@ const cron = require("node-cron");
 const _ = require("lodash");
 import express from "express";
 import increaseOneInRequestTimes from "./functions/increaseOneInRequestTimes";
+import testIfIsPossibleToRegisterNewUsername from "./functions/testIfIsPossibleToRegisterNewUsername";
 import testUsername from "./functions/testUsername";
 import updateAllUsers from "./functions/updateAllUsers";
-import debug from "./puppeteer/debug";
 import testIfUsernameExists from "./puppeteer/testIfUsernameExists";
 const app = express();
 const mongoose = require("mongoose");
@@ -25,6 +25,8 @@ app.use((req, res, next) => {
   next();
 });
 
+// updateAllUsers()
+
 app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
@@ -40,20 +42,22 @@ app.use(
 
 process.on("uncaughtException", (error) => {
   console.log("Alert! ERROR : ", error);
-  process.exit(1); // Exit your app
+  process.exit(1);
 });
-
 
 app.post("/followers", async (req, res) => {
   const { user } = req.body;
   let response;
   let userModel = await testUsername(user);
   if (!_.isEmpty(userModel)) {
-    increaseOneInRequestTimes(userModel)
+    increaseOneInRequestTimes(userModel);
     if (!!userModel?.unfollowersList) {
       let parsed = JSON.parse(userModel?.unfollowersList);
       response = {
-        message: parsed.length > 1 ? 'unfollowers list' : 'seems like no one unfollowed you',
+        message:
+          parsed.length > 1
+            ? "unfollowers list"
+            : "seems like no one unfollowed you",
         status: "success",
         data: { unfollowersList: parsed },
       };
@@ -70,16 +74,23 @@ app.post("/followers", async (req, res) => {
     };
 
     if (await testIfUsernameExists(user)) {
+      if (!(await testIfIsPossibleToRegisterNewUsername())) {
+        response = {
+          message: "limit of registers reached, contact the creator",
+          status: "error",
+        };
+      }
+
       await InstagramUsernameData.create(newRegister);
 
       response = {
         message: "username registered, c u soon :)",
-        status: "success"
+        status: "success",
       };
     } else {
       response = {
         message: "username doesnt exists",
-        status: "success"
+        status: "error",
       };
     }
   }

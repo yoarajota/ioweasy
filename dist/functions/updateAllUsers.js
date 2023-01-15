@@ -17,7 +17,8 @@ const helpers_1 = __importDefault(require("./helpers"));
 const InstagramUsernameData = require("../models/instagramUsernameData");
 function updateAllUsers() {
     return __awaiter(this, void 0, void 0, function* () {
-        let query = yield InstagramUsernameData.find({ requestTimes: { $gte: 3 } }).exec();
+        let query = yield InstagramUsernameData.find({ requestTimes: { $gte: 3 } });
+        console.log(query);
         let allUsers = [];
         for (const u of query) {
             allUsers.push(u.username);

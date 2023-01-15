@@ -20,6 +20,7 @@ const cron = require("node-cron");
 const _ = require("lodash");
 const express_1 = __importDefault(require("express"));
 const increaseOneInRequestTimes_1 = __importDefault(require("./functions/increaseOneInRequestTimes"));
+const testIfIsPossibleToRegisterNewUsername_1 = __importDefault(require("./functions/testIfIsPossibleToRegisterNewUsername"));
 const testUsername_1 = __importDefault(require("./functions/testUsername"));
 const updateAllUsers_1 = __importDefault(require("./functions/updateAllUsers"));
 const testIfUsernameExists_1 = __importDefault(require("./puppeteer/testIfUsernameExists"));
@@ -33,6 +34,7 @@ app.use((req, res, next) => {
     app.use(cors());
     next();
 });
+// updateAllUsers()
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true,
@@ -42,7 +44,7 @@ app.use(cors({
 }));
 process.on("uncaughtException", (error) => {
     console.log("Alert! ERROR : ", error);
-    process.exit(1); // Exit your app
+    process.exit(1);
 });
 app.post("/followers", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user } = req.body;
@@ -53,7 +55,9 @@ app.post("/followers", (req, res) => __awaiter(void 0, void 0, void 0, function*
         if (!!(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList)) {
             let parsed = JSON.parse(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList);
             response = {
-                message: parsed.length > 1 ? 'unfollowers list' : 'seems like no one unfollowed you',
+                message: parsed.length > 1
+                    ? "unfollowers list"
+                    : "seems like no one unfollowed you",
                 status: "success",
                 data: { unfollowersList: parsed },
             };
@@ -71,16 +75,22 @@ app.post("/followers", (req, res) => __awaiter(void 0, void 0, void 0, function*
             username: user,
         };
         if (yield (0, testIfUsernameExists_1.default)(user)) {
+            if (!(yield (0, testIfIsPossibleToRegisterNewUsername_1.default)())) {
+                response = {
+                    message: "limit of registers reached, contact the creator",
+                    status: "error",
+                };
+            }
             yield InstagramUsernameData.create(newRegister);
             response = {
                 message: "username registered, c u soon :)",
-                status: "success"
+                status: "success",
             };
         }
         else {
             response = {
                 message: "username doesnt exists",
-                status: "success"
+                status: "error",
             };
         }
     }

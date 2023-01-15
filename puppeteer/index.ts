@@ -37,6 +37,8 @@ async function getFollowers(users: Array<string>) {
 
       const page2 = await browser.newPage();
 
+        console.log(users)
+
       for (let user of users) {
         if (response[user] !== undefined) continue;
 
