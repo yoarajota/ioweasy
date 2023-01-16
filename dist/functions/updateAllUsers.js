@@ -27,6 +27,7 @@ function updateAllUsers() {
         if (!a)
             return;
         const { status, data } = a;
+        console.log(status, data);
         if (status === "success") {
             let date = new Date();
             for (const key in data) {
@@ -35,6 +36,7 @@ function updateAllUsers() {
                 if (userModel.followers) {
                     unfollowersList = JSON.parse(userModel.followers).filter((x) => !data[key].includes(x));
                 }
+                console.log(unfollowersList);
                 InstagramUsernameData.updateOne({ username: key }, {
                     $set: {
                         followers: JSON.stringify((0, helpers_1.default)(data[key])),

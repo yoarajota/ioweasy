@@ -55,7 +55,7 @@ app.post("/followers", async (req, res) => {
       let parsed = JSON.parse(userModel?.unfollowersList);
       response = {
         message:
-          parsed.length > 1
+          parsed.length > 0
             ? "unfollowers list"
             : "seems like no one unfollowed you",
         status: "success",

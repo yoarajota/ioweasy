@@ -16,6 +16,8 @@ async function updateAllUsers() {
   if (!a) return;
   const { status, data } = a;
 
+
+  console.log(status, data)
   if (status === "success") {
     let date = new Date();
 
@@ -27,6 +29,8 @@ async function updateAllUsers() {
           (x: any) => !data[key].includes(x)
         );
       }
+
+      console.log(unfollowersList)
 
       InstagramUsernameData.updateOne(
         { username: key },

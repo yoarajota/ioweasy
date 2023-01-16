@@ -55,7 +55,7 @@ app.post("/followers", (req, res) => __awaiter(void 0, void 0, void 0, function*
         if (!!(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList)) {
             let parsed = JSON.parse(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList);
             response = {
-                message: parsed.length > 1
+                message: parsed.length > 0
                     ? "unfollowers list"
                     : "seems like no one unfollowed you",
                 status: "success",
