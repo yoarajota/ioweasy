@@ -46,7 +46,7 @@ process.on("uncaughtException", (error) => {
 });
 
 app.post("/followers", async (req, res) => {
-  const { user } = req.body;
+  const { user, type } = req.body.params;
   let response;
   let userModel = await testUsername(user);
   if (!_.isEmpty(userModel)) {

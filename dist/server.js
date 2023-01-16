@@ -47,7 +47,7 @@ process.on("uncaughtException", (error) => {
     process.exit(1);
 });
 app.post("/followers", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { user } = req.body;
+    const { user, type } = req.body.params;
     let response;
     let userModel = yield (0, testUsername_1.default)(user);
     if (!_.isEmpty(userModel)) {
