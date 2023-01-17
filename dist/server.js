@@ -23,6 +23,7 @@ const increaseOneInRequestTimes_1 = __importDefault(require("./functions/increas
 const testIfIsPossibleToRegisterNewUsername_1 = __importDefault(require("./functions/testIfIsPossibleToRegisterNewUsername"));
 const testUsername_1 = __importDefault(require("./functions/testUsername"));
 const updateAllUsers_1 = __importDefault(require("./functions/updateAllUsers"));
+const getFollowersAndFollowing_1 = __importDefault(require("./puppeteer/getFollowersAndFollowing"));
 const testIfUsernameExists_1 = __importDefault(require("./puppeteer/testIfUsernameExists"));
 const app = (0, express_1.default)();
 const mongoose = require("mongoose");
@@ -49,42 +50,75 @@ process.on("uncaughtException", (error) => {
 app.post("/followers", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user, type } = req.body.params;
     let response;
-    let userModel = yield (0, testUsername_1.default)(user);
-    if (!_.isEmpty(userModel)) {
-        (0, increaseOneInRequestTimes_1.default)(userModel);
-        if (!!(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList)) {
-            let parsed = JSON.parse(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList);
-            response = {
-                message: parsed.length > 0
-                    ? "unfollowers list"
-                    : "seems like no one unfollowed you",
-                status: "success",
-                data: { unfollowersList: parsed },
-            };
-        }
-        else {
-            response = {
-                message: "the server didnt updated your unfollower list yet",
-                status: "success",
-                data: { unfollowersList: [] },
-            };
-        }
+    if (type === 1) {
+        response = yield type1(user);
     }
     else {
-        const newRegister = {
-            username: user,
-        };
-        if (yield (0, testIfUsernameExists_1.default)(user)) {
-            if (!(yield (0, testIfIsPossibleToRegisterNewUsername_1.default)())) {
+        response = yield type2(user);
+    }
+    return res.json(response);
+}));
+function type1(user) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let response;
+        let userModel = yield (0, testUsername_1.default)(user); // change the name
+        if (!_.isEmpty(userModel)) {
+            (0, increaseOneInRequestTimes_1.default)(userModel);
+            if (!!(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList)) {
+                let parsed = JSON.parse(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList);
                 response = {
-                    message: "limit of registers reached, contact the creator",
+                    message: parsed.length > 0
+                        ? "unfollowers list"
+                        : "seems like no one unfollowed you",
+                    status: "success",
+                    data: { list: parsed },
+                };
+            }
+            else {
+                response = {
+                    message: "the server didnt updated your unfollower list yet",
+                    status: "success",
+                    data: { list: [] },
+                };
+            }
+        }
+        else {
+            if (yield (0, testIfUsernameExists_1.default)(user)) {
+                if (!(yield (0, testIfIsPossibleToRegisterNewUsername_1.default)())) {
+                    response = {
+                        message: "limit of registers reached, contact the creator",
+                        status: "error",
+                    };
+                }
+                const newRegister = {
+                    username: user,
+                };
+                yield InstagramUsernameData.create(newRegister);
+                response = {
+                    message: "username registered, c u soon :)",
+                    status: "success",
+                };
+            }
+            else {
+                response = {
+                    message: "username doesnt exists",
                     status: "error",
                 };
             }
-            yield InstagramUsernameData.create(newRegister);
+        }
+        return response;
+    });
+}
+function type2(user) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let response;
+        if (yield (0, testIfUsernameExists_1.default)(user)) {
+            let data = yield (0, getFollowersAndFollowing_1.default)(user);
+            let diference = data['followers'].filter((x) => !data['following'].includes(x));
             response = {
-                message: "username registered, c u soon :)",
+                message: "the diference of followers to following",
                 status: "success",
+                data: { list: diference },
             };
         }
         else {
@@ -93,9 +127,9 @@ app.post("/followers", (req, res) => __awaiter(void 0, void 0, void 0, function*
                 status: "error",
             };
         }
-    }
-    return res.json(response);
-}));
+        return response;
+    });
+}
 cron
     .schedule("0 1 * * *", () => {
     (0, updateAllUsers_1.default)();

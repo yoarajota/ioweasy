@@ -5,7 +5,6 @@ const InstagramUsernameData = require("../models/instagramUsernameData");
 
 async function updateAllUsers() {
   let query = await InstagramUsernameData.find({ requestTimes: { $gte: 3 } });
-  console.log(query)
 
   let allUsers: Array<string> = [];
   for (const u of query) {
@@ -16,8 +15,6 @@ async function updateAllUsers() {
   if (!a) return;
   const { status, data } = a;
 
-
-  console.log(status, data)
   if (status === "success") {
     let date = new Date();
 
@@ -29,8 +26,6 @@ async function updateAllUsers() {
           (x: any) => !data[key].includes(x)
         );
       }
-
-      console.log(unfollowersList)
 
       InstagramUsernameData.updateOne(
         { username: key },

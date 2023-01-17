@@ -18,7 +18,6 @@ const InstagramUsernameData = require("../models/instagramUsernameData");
 function updateAllUsers() {
     return __awaiter(this, void 0, void 0, function* () {
         let query = yield InstagramUsernameData.find({ requestTimes: { $gte: 3 } });
-        console.log(query);
         let allUsers = [];
         for (const u of query) {
             allUsers.push(u.username);
@@ -27,7 +26,6 @@ function updateAllUsers() {
         if (!a)
             return;
         const { status, data } = a;
-        console.log(status, data);
         if (status === "success") {
             let date = new Date();
             for (const key in data) {
@@ -36,7 +34,6 @@ function updateAllUsers() {
                 if (userModel.followers) {
                     unfollowersList = JSON.parse(userModel.followers).filter((x) => !data[key].includes(x));
                 }
-                console.log(unfollowersList);
                 InstagramUsernameData.updateOne({ username: key }, {
                     $set: {
                         followers: JSON.stringify((0, helpers_1.default)(data[key])),

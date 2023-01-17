@@ -1,23 +1,8 @@
 import auth from "./auth";
 import launch from "./launch";
+import passThroughAndGet from "./passThroughAndGet";
 
 require("dotenv").config();
-
-const query = () => {
-  let b = document.getElementsByClassName(
-    "_ab8w  _ab94 _ab97 _ab9f _ab9k _ab9p  _ab9- _aba8 _abcm"
-  );
-  let arr = [];
-  for (let x of b) {
-    arr.push(
-      x.children[1]?.firstChild?.firstChild?.firstChild?.firstChild?.firstChild
-        ?.firstChild?.firstChild?.firstChild?.data ??
-      x.children[1]?.firstChild?.firstChild?.firstChild?.firstChild
-        ?.firstChild?.firstChild?.firstChild?.data
-    );
-  }
-  return arr;
-};
 
 async function getFollowers(users: Array<string>) {
   let response: any = {};
@@ -37,73 +22,19 @@ async function getFollowers(users: Array<string>) {
 
       const page2 = await browser.newPage();
 
-        console.log(users)
-
       for (let user of users) {
         if (response[user] !== undefined) continue;
 
-        await page2.goto(`https://www.instagram.com/${user}`);
-
-        await page2.waitForSelector(
-          "section > main > div > ul > li > a > div > span > span"
-        );
-
-        let countFollowers = await page2.$eval(
-          "section > main > div > ul > li:nth-child(2) > a > div > span > span",
-          (el: any) => el.firstChild?.data
-        );
-
-        countFollowers = Number(countFollowers.replace(".", ""));
-
-        await page2.goto(`https://www.instagram.com/${user}/followers`);
-
-        await page2.waitForSelector(
-          "div > div > div > div:nth-child(4) > div > div > div.x9f619.x1n2onr6.x1ja2u2z > div > div.x1uvtmcs.x4k7w5x.x1h91t0o.x1beo9mf.xaigb6o.x12ejxvf.x3igimt.xarpa2k.xedcshv.x1lytzrv.x1t2pt76.x7ja8zs.x1n2onr6.x1qrby5j.x1jfb8zj > div > div > div > div > div.x7r02ix.xf1ldfh.x131esax.xdajt7p.xxfnqb6.xb88tzc.xw2csxc.x1odjw0f.x5fp0pe > div > div > div.x1qjc9v5.x78zum5.xdt5ytf > div > div._ab8w._ab94._ab97._ab9h._ab9m._ab9p._abch._abcm > h1 > div"
-        );
-
-        let oldSrollHeight;
-        let iterationsLimit = 30;
-        while (countFollowers > 0) {
-          await page2.waitForSelector(
-            "div > div > div > div:nth-child(4) > div > div > div.x9f619.x1n2onr6.x1ja2u2z > div > div.x1uvtmcs.x4k7w5x.x1h91t0o.x1beo9mf.xaigb6o.x12ejxvf.x3igimt.xarpa2k.xedcshv.x1lytzrv.x1t2pt76.x7ja8zs.x1n2onr6.x1qrby5j.x1jfb8zj > div > div > div > div > div.x7r02ix.xf1ldfh.x131esax.xdajt7p.xxfnqb6.xb88tzc.xw2csxc.x1odjw0f.x5fp0pe > div > div > div._aano"
-          );
-          let scroll = await page2.$eval(
-            "div > div > div > div:nth-child(4) > div > div > div.x9f619.x1n2onr6.x1ja2u2z > div > div.x1uvtmcs.x4k7w5x.x1h91t0o.x1beo9mf.xaigb6o.x12ejxvf.x3igimt.xarpa2k.xedcshv.x1lytzrv.x1t2pt76.x7ja8zs.x1n2onr6.x1qrby5j.x1jfb8zj > div > div > div > div > div.x7r02ix.xf1ldfh.x131esax.xdajt7p.xxfnqb6.xb88tzc.xw2csxc.x1odjw0f.x5fp0pe > div > div > div._aano",
-            (el: any) => el.scrollHeight
-          );
-
-          if (oldSrollHeight !== scroll) {
-            countFollowers--;
-            iterationsLimit = 30;
-          }
-
-          iterationsLimit--;
-          oldSrollHeight = scroll;
-
-          await page2.evaluate(() => {
-            let a = document.querySelector(
-              "div > div > div > div:nth-child(4) > div > div > div.x9f619.x1n2onr6.x1ja2u2z > div > div.x1uvtmcs.x4k7w5x.x1h91t0o.x1beo9mf.xaigb6o.x12ejxvf.x3igimt.xarpa2k.xedcshv.x1lytzrv.x1t2pt76.x7ja8zs.x1n2onr6.x1qrby5j.x1jfb8zj > div > div > div > div > div.x7r02ix.xf1ldfh.x131esax.xdajt7p.xxfnqb6.xb88tzc.xw2csxc.x1odjw0f.x5fp0pe > div > div > div._aano"
-            );
-
-            if (a) a.scrollTop = a?.scrollHeight ?? 0;
-          });
-
-          if (iterationsLimit === 0) countFollowers = 0;
-        }
-
-        let arr = await page2.evaluate(query);
-        await browser.close();
-
-        response = { ...response, [user]: arr };
+        response = await passThroughAndGet('followers', response, page2, user)
       }
-
+      
+      await browser.close();
       return { status: "success", data: response };
     } catch (error) {
       if (tryes !== 0) {
         tryes--;
         work();
       } else if (tryes === 0) {
-        console.log(error);
         return { status: "error", data: [] };
       }
     }

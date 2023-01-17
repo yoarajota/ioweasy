@@ -5,10 +5,12 @@ const bodyParser = require("body-parser");
 const cron = require("node-cron");
 const _ = require("lodash");
 import express from "express";
+import getCurrentFollowers from "./functions/getCurrentFollowers";
 import increaseOneInRequestTimes from "./functions/increaseOneInRequestTimes";
 import testIfIsPossibleToRegisterNewUsername from "./functions/testIfIsPossibleToRegisterNewUsername";
 import testUsername from "./functions/testUsername";
 import updateAllUsers from "./functions/updateAllUsers";
+import getFollowersAndFollowing from "./puppeteer/getFollowersAndFollowing";
 import testIfUsernameExists from "./puppeteer/testIfUsernameExists";
 const app = express();
 const mongoose = require("mongoose");
@@ -47,8 +49,19 @@ process.on("uncaughtException", (error) => {
 
 app.post("/followers", async (req, res) => {
   const { user, type } = req.body.params;
+  let response
+  if (type === 1) {
+    response = await type1(user)
+  } else {
+    response = await type2(user)
+  }
+  
+  return res.json(response);
+});
+
+async function type1(user: string) {
   let response;
-  let userModel = await testUsername(user);
+  let userModel = await testUsername(user); // change the name
   if (!_.isEmpty(userModel)) {
     increaseOneInRequestTimes(userModel);
     if (!!userModel?.unfollowersList) {
@@ -59,20 +72,16 @@ app.post("/followers", async (req, res) => {
             ? "unfollowers list"
             : "seems like no one unfollowed you",
         status: "success",
-        data: { unfollowersList: parsed },
+        data: { list: parsed },
       };
     } else {
       response = {
         message: "the server didnt updated your unfollower list yet",
         status: "success",
-        data: { unfollowersList: [] },
+        data: { list: [] },
       };
     }
   } else {
-    const newRegister = {
-      username: user,
-    };
-
     if (await testIfUsernameExists(user)) {
       if (!(await testIfIsPossibleToRegisterNewUsername())) {
         response = {
@@ -81,8 +90,12 @@ app.post("/followers", async (req, res) => {
         };
       }
 
+      const newRegister = {
+        username: user,
+      };
+  
       await InstagramUsernameData.create(newRegister);
-
+  
       response = {
         message: "username registered, c u soon :)",
         status: "success",
@@ -95,8 +108,31 @@ app.post("/followers", async (req, res) => {
     }
   }
 
-  return res.json(response);
-});
+  return response;
+}
+
+async function type2(user: string) {
+  let response;
+  if (await testIfUsernameExists(user)) {
+    let data = await getFollowersAndFollowing(user);
+    let diference = data['followers'].filter(
+      (x: any) => !data['following'].includes(x)
+    );
+
+    response = {
+      message: "the diference of followers to following",
+      status: "success",
+      data: { list: diference },
+    };
+  } else {
+    response = {
+      message: "username doesnt exists",
+      status: "error",
+    };
+  }
+
+  return response;
+}
 
 cron
   .schedule(
