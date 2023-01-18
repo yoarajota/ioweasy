@@ -28,8 +28,10 @@ async function getFollowersAndFollowing(user: string) {
     //         return response;
     //     })
     
-    response['followers'] = await passThroughAndGet('followers', response, page2, user);
-    response['following'] = await passThroughAndGet('following', response, page2, user);
+    let f1: Array<any> = [];
+    let f2: Array<any> = [];
+    response['followers'] = Object.values(await passThroughAndGet('followers', f1, page2, user))[0];
+    response['following'] = Object.values(await passThroughAndGet('following', f2, page2, user))[0];
     browser.close();
     return response
 

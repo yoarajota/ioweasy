@@ -114,7 +114,10 @@ function type2(user) {
         let response;
         if (yield (0, testIfUsernameExists_1.default)(user)) {
             let data = yield (0, getFollowersAndFollowing_1.default)(user);
-            let diference = data['followers'].filter((x) => !data['following'].includes(x));
+            let diference = data['following'].filter((x) => !data['followers'].includes(x)
+            //  let diference = data['following'].filter(
+            //    (x: any) => !data['followers'].includes(x)
+            );
             response = {
                 message: "the diference of followers to following",
                 status: "success",

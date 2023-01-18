@@ -115,11 +115,13 @@ async function type2(user: string) {
   let response;
   if (await testIfUsernameExists(user)) {
     let data = await getFollowersAndFollowing(user);
-    let diference = data['followers'].filter(
-      (x: any) => !data['following'].includes(x)
+    let diference = data['following'].filter(
+      (x: any) => !data['followers'].includes(x)
+    //  let diference = data['following'].filter(
+    //    (x: any) => !data['followers'].includes(x)
     );
 
-    response = {
+     response = {
       message: "the diference of followers to following",
       status: "success",
       data: { list: diference },

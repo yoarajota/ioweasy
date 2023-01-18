@@ -34,8 +34,10 @@ function getFollowersAndFollowing(user) {
         //         browser.close();
         //         return response;
         //     })
-        response['followers'] = yield (0, passThroughAndGet_1.default)('followers', response, page2, user);
-        response['following'] = yield (0, passThroughAndGet_1.default)('following', response, page2, user);
+        let f1 = [];
+        let f2 = [];
+        response['followers'] = Object.values(yield (0, passThroughAndGet_1.default)('followers', f1, page2, user))[0];
+        response['following'] = Object.values(yield (0, passThroughAndGet_1.default)('following', f2, page2, user))[0];
         browser.close();
         return response;
     });

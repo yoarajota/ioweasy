@@ -1,18 +1,26 @@
 const query = () => {
+  let arr: Array<any> = [];
+  for (let i = 0; i < 2; i++) {
     let b = document.getElementsByClassName(
       "_ab8w  _ab94 _ab97 _ab9f _ab9k _ab9p  _ab9- _aba8 _abcm"
     );
-    let arr = [];
+    arr[i] = [];
     for (let x of b) {
-      arr.push(
+      arr[i].push(
         x.children[1]?.firstChild?.firstChild?.firstChild?.firstChild?.firstChild
           ?.firstChild?.firstChild?.firstChild?.data ??
         x.children[1]?.firstChild?.firstChild?.firstChild?.firstChild
           ?.firstChild?.firstChild?.firstChild?.data
       );
     }
-    return arr;
-  };
+  }
+
+  arr = arr[1].concat(arr[2]);
+  arr = arr.filter((item, index) => {
+    return (arr.indexOf(item) == index)
+  })
+  return arr
+};
 
 async function passThroughAndGet(type: string, response: Array<any>, page: any, user: string) {
     await page.goto(`https://www.instagram.com/${user}`);
@@ -65,6 +73,8 @@ async function passThroughAndGet(type: string, response: Array<any>, page: any, 
     }
 
     let arr = await page.evaluate(query);
+
+    console.log(arr)
     
     return { ...response, [user]: arr };
 }
