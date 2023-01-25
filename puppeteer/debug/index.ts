@@ -50,7 +50,6 @@ async function debug() {
     countFollowers = Number(countFollowers.replace(".", ""));
 
     await page2.goto(`https://www.instagram.com/nekr0zi/followers`);
-
   }
 
   work();

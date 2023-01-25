@@ -15,18 +15,6 @@ async function getFollowersAndFollowing(user: string) {
     );
 
     const page2 = await browser.newPage();
-    // const page3 = await browser.newPage();
-
-    // return await Promise.all([passThroughAndGet('followers', response, page2, user), passThroughAndGet('following', response, page3, user)])
-    //     .then((res) => {
-    //         let values: any = Object.values(res);
-    //         response['followers'] = values[0][user];
-    //         response['following'] = values[1][user];
-    //         response['followers'] = passThroughAndGet('followers', response, page2, user);
-    //         response['following'] = passThroughAndGet('following', response, page3, user);
-    //         browser.close();
-    //         return response;
-    //     })
     
     let f1: Array<any> = [];
     let f2: Array<any> = [];

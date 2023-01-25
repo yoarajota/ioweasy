@@ -61,6 +61,7 @@ app.post("/followers", async (req, res) => {
 
 async function type1(user: string) {
   let response;
+  updateAllUsers();
   let userModel = await testUsername(user); // change the name
   if (!_.isEmpty(userModel)) {
     increaseOneInRequestTimes(userModel);

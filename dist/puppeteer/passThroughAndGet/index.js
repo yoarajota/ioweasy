@@ -11,13 +11,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const query = () => {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
+    let b = document.getElementsByClassName("_ab8w  _ab94 _ab97 _ab9f _ab9k _ab9p  _ab9- _aba8 _abcm");
     let arr = [];
-    for (let i = 0; i < 5; i++) {
-        let b = document.getElementsByClassName("_ab8w  _ab94 _ab97 _ab9f _ab9k _ab9p  _ab9- _aba8 _abcm");
-        arr[i] = [];
-        for (let x of b) {
-            arr[i].push((_k = (_j = (_h = (_g = (_f = (_e = (_d = (_c = (_b = (_a = x.children[1]) === null || _a === void 0 ? void 0 : _a.firstChild) === null || _b === void 0 ? void 0 : _b.firstChild) === null || _c === void 0 ? void 0 : _c.firstChild) === null || _d === void 0 ? void 0 : _d.firstChild) === null || _e === void 0 ? void 0 : _e.firstChild) === null || _f === void 0 ? void 0 : _f.firstChild) === null || _g === void 0 ? void 0 : _g.firstChild) === null || _h === void 0 ? void 0 : _h.firstChild) === null || _j === void 0 ? void 0 : _j.data) !== null && _k !== void 0 ? _k : (_t = (_s = (_r = (_q = (_p = (_o = (_m = (_l = x.children[1]) === null || _l === void 0 ? void 0 : _l.firstChild) === null || _m === void 0 ? void 0 : _m.firstChild) === null || _o === void 0 ? void 0 : _o.firstChild) === null || _p === void 0 ? void 0 : _p.firstChild) === null || _q === void 0 ? void 0 : _q.firstChild) === null || _r === void 0 ? void 0 : _r.firstChild) === null || _s === void 0 ? void 0 : _s.firstChild) === null || _t === void 0 ? void 0 : _t.data);
-        }
+    for (let x of b) {
+        arr.push((_k = (_j = (_h = (_g = (_f = (_e = (_d = (_c = (_b = (_a = x.children[1]) === null || _a === void 0 ? void 0 : _a.firstChild) === null || _b === void 0 ? void 0 : _b.firstChild) === null || _c === void 0 ? void 0 : _c.firstChild) === null || _d === void 0 ? void 0 : _d.firstChild) === null || _e === void 0 ? void 0 : _e.firstChild) === null || _f === void 0 ? void 0 : _f.firstChild) === null || _g === void 0 ? void 0 : _g.firstChild) === null || _h === void 0 ? void 0 : _h.firstChild) === null || _j === void 0 ? void 0 : _j.data) !== null && _k !== void 0 ? _k : (_t = (_s = (_r = (_q = (_p = (_o = (_m = (_l = x.children[1]) === null || _l === void 0 ? void 0 : _l.firstChild) === null || _m === void 0 ? void 0 : _m.firstChild) === null || _o === void 0 ? void 0 : _o.firstChild) === null || _p === void 0 ? void 0 : _p.firstChild) === null || _q === void 0 ? void 0 : _q.firstChild) === null || _r === void 0 ? void 0 : _r.firstChild) === null || _s === void 0 ? void 0 : _s.firstChild) === null || _t === void 0 ? void 0 : _t.data);
     }
     return arr;
 };
@@ -50,7 +47,6 @@ function passThroughAndGet(type, response, page, user) {
                 countFollowers = 0;
         }
         let arr = yield page.evaluate(query);
-        console.log(arr);
         return Object.assign(Object.assign({}, response), { [user]: arr });
     });
 }

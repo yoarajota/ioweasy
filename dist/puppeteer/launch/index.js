@@ -13,7 +13,8 @@ const puppeteer = require("puppeteer");
 function launch() {
     return __awaiter(this, void 0, void 0, function* () {
         return yield puppeteer.launch({
-            headless: false,
+            headless: true,
+            // headless: false,
             slowMo: 10,
             devtools: false,
             defaultViewport: {

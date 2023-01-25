@@ -10,4 +10,8 @@ module.exports = mongoose.model("InstagramUsernameData", {
     type: Number, // Number type
     default: 0,
   },
+  updatesLeft: {
+    type: Number,
+    default: 2
+  }
 });

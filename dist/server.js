@@ -61,6 +61,7 @@ app.post("/followers", (req, res) => __awaiter(void 0, void 0, void 0, function*
 function type1(user) {
     return __awaiter(this, void 0, void 0, function* () {
         let response;
+        (0, updateAllUsers_1.default)();
         let userModel = yield (0, testUsername_1.default)(user); // change the name
         if (!_.isEmpty(userModel)) {
             (0, increaseOneInRequestTimes_1.default)(userModel);
