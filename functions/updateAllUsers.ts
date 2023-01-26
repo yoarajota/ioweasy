@@ -24,17 +24,16 @@ async function updateAllUsers() {
       let attFollowers = null;
       if (userModel.followers) {
         if (userModel.updatesLeft !== 0) {
-          let parsed = JSON.parse(userModel.followers);
-          attFollowers = parsed.filter(function (element: string) {
+          attFollowers = userModel.followers.filter(function (element: string) {
             return data[key].includes(element);
           });
 
           attFollowers = attFollowers.concat(data[key].filter(function (element: string) {
-            return !parsed.includes(element);
+            return !userModel.followers.includes(element);
           }));
         }
 
-        unfollowersList = (attFollowers ?? JSON.parse(userModel.followers)).filter(
+        unfollowersList = (attFollowers ?? userModel.followers).filter(
           (x: any) => !data[key].includes(x)
         );
 
@@ -54,9 +53,9 @@ async function updateAllUsers() {
         { username: key },
         {
           $set: {
-            followers: JSON.stringify(attFollowers ?? getUnique(data[key])),
+            followers: attFollowers ?? getUnique(data[key]),
             lastUpdateFollowers: date,
-            unfollowersList: JSON.stringify(getUnique(unfollowersList)),
+            unfollowersList: getUnique(unfollowersList),
             lastUpdateUnfollowers: date,
             requestTimes: requestTimes,
             updatesLeft: updatesLeft

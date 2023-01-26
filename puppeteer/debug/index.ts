@@ -3,27 +3,11 @@ import launch from "../launch";
 
 require("dotenv").config();
 
-const query = () => {
-  let b = document.getElementsByClassName(
-    "_ab8w  _ab94 _ab97 _ab9f _ab9k _ab9p  _ab9- _aba8 _abcm"
-  );
-  let arr = [];
-  for (let x of b) {
-    arr.push(
-      x.children[1]?.firstChild?.firstChild?.firstChild?.firstChild?.firstChild
-        ?.firstChild?.firstChild?.firstChild?.data ??
-      x.children[1]?.firstChild?.firstChild?.firstChild?.firstChild
-        ?.firstChild?.firstChild?.firstChild?.data
-    );
-  }
-  return arr;
-};
-
 async function debug() {
   let tryes = 5;
 
   async function work() {
-    const browser = await launch();
+    const browser = await launch(true);
 
     const page = await browser.newPage();
 
@@ -38,18 +22,6 @@ async function debug() {
 
     await page2.goto(`https://www.instagram.com/nekr0zi`);
 
-    await page2.waitForSelector(
-      "section > main > div > ul > li > a > div > span > span"
-    );
-
-    let countFollowers = await page2.$eval(
-      "section > main > div > ul > li:nth-child(2) > a > div > span > span",
-      (el: any) => el.firstChild?.data
-    );
-
-    countFollowers = Number(countFollowers.replace(".", ""));
-
-    await page2.goto(`https://www.instagram.com/nekr0zi/followers`);
   }
 
   work();

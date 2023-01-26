@@ -10,10 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const puppeteer = require("puppeteer");
-function launch() {
+function launch(debug = false) {
     return __awaiter(this, void 0, void 0, function* () {
         return yield puppeteer.launch({
-            headless: true,
+            headless: !debug,
             // headless: false,
             slowMo: 10,
             devtools: false,

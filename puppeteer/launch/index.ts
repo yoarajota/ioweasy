@@ -1,8 +1,8 @@
 const puppeteer = require("puppeteer");
 
-async function launch() {
+async function launch(debug = false) {
   return await puppeteer.launch({
-    headless: true,
+    headless: !debug,
     // headless: false,
     slowMo: 10,
     devtools: false,

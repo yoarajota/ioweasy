@@ -19,9 +19,22 @@ async function testIfUsernameExists(user: string) {
             , { timeout: 6000, visible: true })
             .then(() => { exists = false }).catch(),
     ]);
+    let impossible = false;
+    if (exists) {
+        try {
+            await page.waitForSelector(
+                "article > div > div > h2"
+                , { timeout: 6000, visible: true })
+                .then((res: any) => {
+                    impossible = true
+                }).catch();
+        } catch (err) {
+
+        }
+    }
 
     browser.close()
-    return exists
+    return [exists, !impossible]
 }
 
 export default testIfUsernameExists

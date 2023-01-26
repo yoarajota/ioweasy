@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 
 module.exports = mongoose.model("InstagramUsernameData", {
   username: String,
-  followers: JSON,
+  followers: Array,
   lastUpdateFollowers: Date,
-  unfollowersList: JSON,
+  unfollowersList: Array,
   lastUpdateUnfollowers: Date,
   requestTimes: {
     type: Number, // Number type

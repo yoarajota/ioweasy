@@ -37,7 +37,7 @@ function updateAllUsers() {
         }
     });
 }
-function testUsername(user) {
+function userModel(user) {
     return __awaiter(this, void 0, void 0, function* () {
         return InstagramUsernameData.find({ user: user });
     });
@@ -48,4 +48,4 @@ function getCurrentFollowers(users) {
         return a;
     });
 }
-module.exports = { getCurrentFollowers, testUsername, updateAllUsers };
+module.exports = { getCurrentFollowers, userModel, updateAllUsers };

@@ -34,15 +34,14 @@ function updateAllUsers() {
                 let attFollowers = null;
                 if (userModel.followers) {
                     if (userModel.updatesLeft !== 0) {
-                        let parsed = JSON.parse(userModel.followers);
-                        attFollowers = parsed.filter(function (element) {
+                        attFollowers = userModel.followers.filter(function (element) {
                             return data[key].includes(element);
                         });
                         attFollowers = attFollowers.concat(data[key].filter(function (element) {
-                            return !parsed.includes(element);
+                            return !userModel.followers.includes(element);
                         }));
                     }
-                    unfollowersList = (attFollowers !== null && attFollowers !== void 0 ? attFollowers : JSON.parse(userModel.followers)).filter((x) => !data[key].includes(x));
+                    unfollowersList = (attFollowers !== null && attFollowers !== void 0 ? attFollowers : userModel.followers).filter((x) => !data[key].includes(x));
                     if (attFollowers)
                         attFollowers = (0, helpers_1.default)(attFollowers);
                 }
@@ -57,9 +56,9 @@ function updateAllUsers() {
                 }
                 InstagramUsernameData.updateOne({ username: key }, {
                     $set: {
-                        followers: JSON.stringify(attFollowers !== null && attFollowers !== void 0 ? attFollowers : (0, helpers_1.default)(data[key])),
+                        followers: attFollowers !== null && attFollowers !== void 0 ? attFollowers : (0, helpers_1.default)(data[key]),
                         lastUpdateFollowers: date,
-                        unfollowersList: JSON.stringify((0, helpers_1.default)(unfollowersList)),
+                        unfollowersList: (0, helpers_1.default)(unfollowersList),
                         lastUpdateUnfollowers: date,
                         requestTimes: requestTimes,
                         updatesLeft: updatesLeft

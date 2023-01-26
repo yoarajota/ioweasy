@@ -8,10 +8,11 @@ import express from "express";
 import getCurrentFollowers from "./functions/getCurrentFollowers";
 import increaseOneInRequestTimes from "./functions/increaseOneInRequestTimes";
 import testIfIsPossibleToRegisterNewUsername from "./functions/testIfIsPossibleToRegisterNewUsername";
-import testUsername from "./functions/testUsername";
 import updateAllUsers from "./functions/updateAllUsers";
+import debug from "./puppeteer/debug";
 import getFollowersAndFollowing from "./puppeteer/getFollowersAndFollowing";
 import testIfUsernameExists from "./puppeteer/testIfUsernameExists";
+import userModel from "./functions/userModel";
 const app = express();
 const mongoose = require("mongoose");
 const InstagramUsernameData = require("./models/instagramUsernameData");
@@ -55,25 +56,25 @@ app.post("/followers", async (req, res) => {
   } else {
     response = await type2(user)
   }
-  
+
   return res.json(response);
 });
 
 async function type1(user: string) {
   let response;
-  updateAllUsers();
-  let userModel = await testUsername(user); // change the name
-  if (!_.isEmpty(userModel)) {
-    increaseOneInRequestTimes(userModel);
-    if (!!userModel?.unfollowersList) {
-      let parsed = JSON.parse(userModel?.unfollowersList);
+  debug()
+  return;
+  let model = await userModel(user);
+  if (!_.isEmpty(model)) {
+    increaseOneInRequestTimes(model);
+    if (!!model?.unfollowersList) {
       response = {
         message:
-          parsed.length > 0
+          model?.unfollowersList.length > 0
             ? "unfollowers list"
             : "seems like no one unfollowed you",
         status: "success",
-        data: { list: parsed },
+        data: { list: model?.unfollowersList },
       };
     } else {
       response = {
@@ -83,7 +84,8 @@ async function type1(user: string) {
       };
     }
   } else {
-    if (await testIfUsernameExists(user)) {
+    let test = await testIfUsernameExists(user)
+    if (test[0] && test[1]) {
       if (!(await testIfIsPossibleToRegisterNewUsername())) {
         response = {
           message: "limit of registers reached, contact the creator",
@@ -94,47 +96,67 @@ async function type1(user: string) {
       const newRegister = {
         username: user,
       };
-  
+
       await InstagramUsernameData.create(newRegister);
-  
+
       response = {
         message: "username registered, c u soon :)",
         status: "success",
       };
     } else {
       response = {
-        message: "username doesnt exists",
+        message: !test[0] ? "username doesnt exists" : "username has private account",
         status: "error",
       };
     }
   }
 
+
   return response;
 }
 
 async function type2(user: string) {
-  let response;
-  if (await testIfUsernameExists(user)) {
-    let data = await getFollowersAndFollowing(user);
-    let diference = data['following'].filter(
-      (x: any) => !data['followers'].includes(x)
-    //  let diference = data['following'].filter(
-    //    (x: any) => !data['followers'].includes(x)
-    );
+  try {
 
-     response = {
-      message: "the diference of followers to following",
-      status: "success",
-      data: { list: diference },
-    };
-  } else {
-    response = {
-      message: "username doesnt exists",
+    let response;
+    let test = await testIfUsernameExists(user)
+    if (test[0] && test[1]) {
+      let data = await getFollowersAndFollowing(user);
+      let model = await userModel(user);
+      if (model.followers) {
+        let c = model.followers.filter(function (element: string) {
+          return data['followers'].includes(element);
+        });
+
+        c = c.concat(data['followers'].filter(function (element: string) {
+          return !model.followers.includes(element);
+        }));
+      }
+
+      let diference = data['following'].filter(
+        (x: any) => !data['followers'].includes(x)
+      );
+
+      response = {
+        message: "the diference of followers to following",
+        status: "success",
+        data: { list: diference },
+      };
+    } else {
+      response = {
+        message: !test[0] ? "username doesnt exists" : "username has private account",
+        status: "error",
+      };
+    }
+
+    return response;
+
+  } catch (error) {
+    return {
+      message: "server or instagram error, please try again later",
       status: "error",
     };
   }
-
-  return response;
 }
 
 cron

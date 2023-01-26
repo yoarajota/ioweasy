@@ -1,7 +1,7 @@
 const InstagramUsernameData = require("../models/instagramUsernameData");
 
-async function testUsername(user: string) {
+async function userModel(user: string) {
     return InstagramUsernameData.findOne({ username: user }).exec();
   }
 
-export default testUsername
+export default userModel

@@ -25,8 +25,19 @@ function testIfUsernameExists(user) {
             page.waitForSelector("div > div > div > div.x9f619.x1n2onr6.x1ja2u2z > div > div > div > div.x78zum5.xdt5ytf.x10cihs4.x1t2pt76.x1n2onr6.x1ja2u2z > section > main > div > div > div > div", { timeout: 6000, visible: true })
                 .then(() => { exists = false; }).catch(),
         ]);
+        let impossible = false;
+        if (exists) {
+            try {
+                yield page.waitForSelector("article > div > div > h2", { timeout: 6000, visible: true })
+                    .then((res) => {
+                    impossible = true;
+                }).catch();
+            }
+            catch (err) {
+            }
+        }
         browser.close();
-        return exists;
+        return [exists, !impossible];
     });
 }
 exports.default = testIfUsernameExists;

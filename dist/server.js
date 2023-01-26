@@ -21,10 +21,11 @@ const _ = require("lodash");
 const express_1 = __importDefault(require("express"));
 const increaseOneInRequestTimes_1 = __importDefault(require("./functions/increaseOneInRequestTimes"));
 const testIfIsPossibleToRegisterNewUsername_1 = __importDefault(require("./functions/testIfIsPossibleToRegisterNewUsername"));
-const testUsername_1 = __importDefault(require("./functions/testUsername"));
 const updateAllUsers_1 = __importDefault(require("./functions/updateAllUsers"));
+const debug_1 = __importDefault(require("./puppeteer/debug"));
 const getFollowersAndFollowing_1 = __importDefault(require("./puppeteer/getFollowersAndFollowing"));
 const testIfUsernameExists_1 = __importDefault(require("./puppeteer/testIfUsernameExists"));
+const userModel_1 = __importDefault(require("./functions/userModel"));
 const app = (0, express_1.default)();
 const mongoose = require("mongoose");
 const InstagramUsernameData = require("./models/instagramUsernameData");
@@ -61,18 +62,18 @@ app.post("/followers", (req, res) => __awaiter(void 0, void 0, void 0, function*
 function type1(user) {
     return __awaiter(this, void 0, void 0, function* () {
         let response;
-        (0, updateAllUsers_1.default)();
-        let userModel = yield (0, testUsername_1.default)(user); // change the name
-        if (!_.isEmpty(userModel)) {
-            (0, increaseOneInRequestTimes_1.default)(userModel);
-            if (!!(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList)) {
-                let parsed = JSON.parse(userModel === null || userModel === void 0 ? void 0 : userModel.unfollowersList);
+        (0, debug_1.default)();
+        return;
+        let model = yield (0, userModel_1.default)(user);
+        if (!_.isEmpty(model)) {
+            (0, increaseOneInRequestTimes_1.default)(model);
+            if (!!(model === null || model === void 0 ? void 0 : model.unfollowersList)) {
                 response = {
-                    message: parsed.length > 0
+                    message: (model === null || model === void 0 ? void 0 : model.unfollowersList.length) > 0
                         ? "unfollowers list"
                         : "seems like no one unfollowed you",
                     status: "success",
-                    data: { list: parsed },
+                    data: { list: model === null || model === void 0 ? void 0 : model.unfollowersList },
                 };
             }
             else {
@@ -84,7 +85,8 @@ function type1(user) {
             }
         }
         else {
-            if (yield (0, testIfUsernameExists_1.default)(user)) {
+            let test = yield (0, testIfUsernameExists_1.default)(user);
+            if (test[0] && test[1]) {
                 if (!(yield (0, testIfIsPossibleToRegisterNewUsername_1.default)())) {
                     response = {
                         message: "limit of registers reached, contact the creator",
@@ -102,7 +104,7 @@ function type1(user) {
             }
             else {
                 response = {
-                    message: "username doesnt exists",
+                    message: !test[0] ? "username doesnt exists" : "username has private account",
                     status: "error",
                 };
             }
@@ -112,26 +114,41 @@ function type1(user) {
 }
 function type2(user) {
     return __awaiter(this, void 0, void 0, function* () {
-        let response;
-        if (yield (0, testIfUsernameExists_1.default)(user)) {
-            let data = yield (0, getFollowersAndFollowing_1.default)(user);
-            let diference = data['following'].filter((x) => !data['followers'].includes(x)
-            //  let diference = data['following'].filter(
-            //    (x: any) => !data['followers'].includes(x)
-            );
-            response = {
-                message: "the diference of followers to following",
-                status: "success",
-                data: { list: diference },
-            };
+        try {
+            let response;
+            let test = yield (0, testIfUsernameExists_1.default)(user);
+            if (test[0] && test[1]) {
+                let data = yield (0, getFollowersAndFollowing_1.default)(user);
+                let model = yield (0, userModel_1.default)(user);
+                if (model.followers) {
+                    let c = model.followers.filter(function (element) {
+                        return data['followers'].includes(element);
+                    });
+                    c = c.concat(data['followers'].filter(function (element) {
+                        return !model.followers.includes(element);
+                    }));
+                }
+                let diference = data['following'].filter((x) => !data['followers'].includes(x));
+                response = {
+                    message: "the diference of followers to following",
+                    status: "success",
+                    data: { list: diference },
+                };
+            }
+            else {
+                response = {
+                    message: !test[0] ? "username doesnt exists" : "username has private account",
+                    status: "error",
+                };
+            }
+            return response;
         }
-        else {
-            response = {
-                message: "username doesnt exists",
+        catch (error) {
+            return {
+                message: "server or instagram error, please try again later",
                 status: "error",
             };
         }
-        return response;
     });
 }
 cron
