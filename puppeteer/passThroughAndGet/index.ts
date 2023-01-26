@@ -7,8 +7,10 @@ const query = () => {
     arr.push(
       x.children[1]?.firstChild?.firstChild?.firstChild?.firstChild?.firstChild
         ?.firstChild?.firstChild?.firstChild?.data ??
-      x.children[1]?.firstChild?.firstChild?.firstChild?.firstChild
-        ?.firstChild?.firstChild?.firstChild?.data
+        x.children[1]?.firstChild?.firstChild?.firstChild?.firstChild
+          ?.firstChild?.firstChild?.firstChild?.data ??
+        x.children[1].firstChild?.firstChild?.firstChild?.firstChild?.firstChild
+          ?.firstChild?.firstChild?.firstChild?.firstChild?.data
     );
   }
 
@@ -66,7 +68,6 @@ async function passThroughAndGet(type: string, response: Array<any>, page: any, 
   }
 
   let arr = await page.evaluate(query);
-
   return { ...response, [user]: arr };
 }
 

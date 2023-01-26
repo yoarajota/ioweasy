@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const puppeteer_1 = __importDefault(require("../puppeteer"));
 function getCurrentFollowers(users) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log(users);
         let a = yield (0, puppeteer_1.default)(users);
         return a;
     });

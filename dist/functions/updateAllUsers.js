@@ -33,7 +33,6 @@ function updateAllUsers() {
                 let unfollowersList = [];
                 let attFollowers = null;
                 if (userModel.followers) {
-                    console.log("if");
                     if (userModel.updatesLeft !== 0) {
                         let parsed = JSON.parse(userModel.followers);
                         attFollowers = parsed.filter(function (element) {
@@ -42,7 +41,6 @@ function updateAllUsers() {
                         attFollowers = attFollowers.concat(data[key].filter(function (element) {
                             return !parsed.includes(element);
                         }));
-                        console.log(attFollowers, data[key]);
                     }
                     unfollowersList = (attFollowers !== null && attFollowers !== void 0 ? attFollowers : JSON.parse(userModel.followers)).filter((x) => !data[key].includes(x));
                     if (attFollowers)
@@ -51,13 +49,12 @@ function updateAllUsers() {
                 let requestTimes, updatesLeft;
                 if (userModel.updatesLeft !== 0) {
                     requestTimes = userModel.requestTimes;
-                    updatesLeft = userModel.updatesLeft--;
+                    updatesLeft = userModel.updatesLeft - 1;
                 }
                 else {
                     requestTimes = 0;
                     updatesLeft = 2;
                 }
-                console.log('passou');
                 InstagramUsernameData.updateOne({ username: key }, {
                     $set: {
                         followers: JSON.stringify(attFollowers !== null && attFollowers !== void 0 ? attFollowers : (0, helpers_1.default)(data[key])),

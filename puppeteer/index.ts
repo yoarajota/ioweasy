@@ -28,9 +28,12 @@ async function getFollowers(users: Array<string>) {
         response = await passThroughAndGet('followers', response, page2, user)
       }
       
+      console.log('close?')
       await browser.close();
       return { status: "success", data: response };
     } catch (error) {
+      console.log(error)
+
       if (tryes !== 0) {
         tryes--;
         work();

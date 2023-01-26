@@ -33,10 +33,12 @@ function getFollowers(users) {
                             continue;
                         response = yield (0, passThroughAndGet_1.default)('followers', response, page2, user);
                     }
+                    console.log('close?');
                     yield browser.close();
                     return { status: "success", data: response };
                 }
                 catch (error) {
+                    console.log(error);
                     if (tryes !== 0) {
                         tryes--;
                         work();

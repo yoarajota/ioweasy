@@ -23,7 +23,6 @@ async function updateAllUsers() {
       let unfollowersList = [];
       let attFollowers = null;
       if (userModel.followers) {
-        console.log("if")
         if (userModel.updatesLeft !== 0) {
           let parsed = JSON.parse(userModel.followers);
           attFollowers = parsed.filter(function (element: string) {
@@ -33,8 +32,6 @@ async function updateAllUsers() {
           attFollowers = attFollowers.concat(data[key].filter(function (element: string) {
             return !parsed.includes(element);
           }));
-          
-          console.log(attFollowers, data[key])
         }
 
         unfollowersList = (attFollowers ?? JSON.parse(userModel.followers)).filter(
@@ -47,13 +44,11 @@ async function updateAllUsers() {
       let requestTimes, updatesLeft;
       if (userModel.updatesLeft !== 0) {
         requestTimes = userModel.requestTimes;
-        updatesLeft = userModel.updatesLeft--;
+        updatesLeft = userModel.updatesLeft - 1;
       } else {
         requestTimes = 0;
         updatesLeft = 2;
       }
-
-      console.log('passou')
 
       InstagramUsernameData.updateOne(
         { username: key },
