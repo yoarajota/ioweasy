@@ -5,11 +5,9 @@ const bodyParser = require("body-parser");
 const cron = require("node-cron");
 const _ = require("lodash");
 import express from "express";
-import getCurrentFollowers from "./functions/getCurrentFollowers";
 import increaseOneInRequestTimes from "./functions/increaseOneInRequestTimes";
 import testIfIsPossibleToRegisterNewUsername from "./functions/testIfIsPossibleToRegisterNewUsername";
 import updateAllUsers from "./functions/updateAllUsers";
-import debug from "./puppeteer/debug";
 import getFollowersAndFollowing from "./puppeteer/getFollowersAndFollowing";
 import testIfUsernameExists from "./puppeteer/testIfUsernameExists";
 import userModel from "./functions/userModel";
@@ -27,8 +25,6 @@ app.use((req, res, next) => {
   app.use(cors());
   next();
 });
-
-// updateAllUsers()
 
 app.use(bodyParser.json());
 app.use(
@@ -49,25 +45,45 @@ process.on("uncaughtException", (error) => {
 });
 
 app.post("/followers", async (req, res) => {
-  const { user, type } = req.body.params;
-  let response
-  if (type === 1) {
-    response = await type1(user)
-  } else {
-    response = await type2(user)
+  const { user, type, followers_list, following_list } = req.body;
+  let response;
+  switch (type) {
+    case 0:
+      response = await type0(followers_list, following_list);
+      break;
+    case 1:
+      response = await type1(user);
+      break;
+    case 2:
+      response = await type2(user);
+      break;
+    default:
+      break;
   }
 
   return res.json(response);
 });
 
+async function type0(
+  followers_list: Array<string>,
+  following_list: Array<string>
+) {
+  let set1 = new Set(followers_list);
+  let set2 = new Set(following_list);
+  let difference = [...set2].filter((x) => !set1.has(x));
+  return {
+    message: "list of the diference between yor followers and following",
+    status: "success",
+    data: { list: difference },
+  };
+}
+
 async function type1(user: string) {
   let response;
-  debug()
-  return;
   let model = await userModel(user);
   if (!_.isEmpty(model)) {
     increaseOneInRequestTimes(model);
-    if (!!model?.unfollowersList) {
+    if (model?.unfollowersList) {
       response = {
         message:
           model?.unfollowersList.length > 0
@@ -84,7 +100,7 @@ async function type1(user: string) {
       };
     }
   } else {
-    let test = await testIfUsernameExists(user)
+    let test = await testIfUsernameExists(user);
     if (test[0] && test[1]) {
       if (!(await testIfIsPossibleToRegisterNewUsername())) {
         response = {
@@ -105,36 +121,38 @@ async function type1(user: string) {
       };
     } else {
       response = {
-        message: !test[0] ? "username doesnt exists" : "username has private account",
+        message: !test[0]
+          ? "username doesnt exists"
+          : "username has private account",
         status: "error",
       };
     }
   }
-
 
   return response;
 }
 
 async function type2(user: string) {
   try {
-
     let response;
-    let test = await testIfUsernameExists(user)
+    let test = await testIfUsernameExists(user);
     if (test[0] && test[1]) {
       let data = await getFollowersAndFollowing(user);
       let model = await userModel(user);
       if (model.followers) {
         let c = model.followers.filter(function (element: string) {
-          return data['followers'].includes(element);
+          return data["followers"].includes(element);
         });
 
-        c = c.concat(data['followers'].filter(function (element: string) {
-          return !model.followers.includes(element);
-        }));
+        c = c.concat(
+          data["followers"].filter(function (element: string) {
+            return !model.followers.includes(element);
+          })
+        );
       }
 
-      let diference = data['following'].filter(
-        (x: any) => !data['followers'].includes(x)
+      let diference = data["following"].filter(
+        (x: any) => !data["followers"].includes(x)
       );
 
       response = {
@@ -144,13 +162,14 @@ async function type2(user: string) {
       };
     } else {
       response = {
-        message: !test[0] ? "username doesnt exists" : "username has private account",
+        message: !test[0]
+          ? "username doesnt exists"
+          : "username has private account",
         status: "error",
       };
     }
 
     return response;
-
   } catch (error) {
     return {
       message: "server or instagram error, please try again later",
@@ -172,11 +191,17 @@ cron
   )
   .start();
 
-mongoose.connect(String(MONGOOSE)).then(
+if (MONGOOSE) {
+  mongoose.connect(String(MONGOOSE)).then(
+    app.listen(8000, () => {
+      console.log("Servidor Iniciado com conexão ao Atlas.");
+    })
+  );
+} else {
   app.listen(8000, () => {
     console.log("Servidor Iniciado.");
-  })
-);
+  });
+}
 
 //                                      .              .,,,,,,         .,,,,,,,,,,,,,,.
 //      #@.  (&.  .@,                 #@*              .****&@         (@/*********@@,

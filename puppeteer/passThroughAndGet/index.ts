@@ -6,18 +6,23 @@ const query = () => {
   for (let x of b) {
     arr.push(
       x.children[1]?.firstChild?.firstChild?.firstChild?.firstChild?.firstChild
-        ?.firstChild?.firstChild?.firstChild?.data ??
+        ?.firstChild?.firstChild?.firstChild?.textContent ??
         x.children[1]?.firstChild?.firstChild?.firstChild?.firstChild
-          ?.firstChild?.firstChild?.firstChild?.data ??
+          ?.firstChild?.firstChild?.firstChild?.textContent ??
         x.children[1].firstChild?.firstChild?.firstChild?.firstChild?.firstChild
-          ?.firstChild?.firstChild?.firstChild?.firstChild?.data
+          ?.firstChild?.firstChild?.firstChild?.firstChild?.textContent
     );
   }
 
   return arr;
 };
 
-async function passThroughAndGet(type: string, response: Array<any>, page: any, user: string) {
+async function passThroughAndGet(
+  type: string,
+  response: Array<any>,
+  page: any,
+  user: string
+) {
   await page.goto(`https://www.instagram.com/${user}`);
 
   await page.waitForSelector(
@@ -71,4 +76,4 @@ async function passThroughAndGet(type: string, response: Array<any>, page: any, 
   return { ...response, [user]: arr };
 }
 
-export default passThroughAndGet
+export default passThroughAndGet;

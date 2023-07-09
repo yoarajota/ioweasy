@@ -22,7 +22,6 @@ const express_1 = __importDefault(require("express"));
 const increaseOneInRequestTimes_1 = __importDefault(require("./functions/increaseOneInRequestTimes"));
 const testIfIsPossibleToRegisterNewUsername_1 = __importDefault(require("./functions/testIfIsPossibleToRegisterNewUsername"));
 const updateAllUsers_1 = __importDefault(require("./functions/updateAllUsers"));
-const debug_1 = __importDefault(require("./puppeteer/debug"));
 const getFollowersAndFollowing_1 = __importDefault(require("./puppeteer/getFollowersAndFollowing"));
 const testIfUsernameExists_1 = __importDefault(require("./puppeteer/testIfUsernameExists"));
 const userModel_1 = __importDefault(require("./functions/userModel"));
@@ -36,7 +35,6 @@ app.use((req, res, next) => {
     app.use(cors());
     next();
 });
-// updateAllUsers()
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true,
@@ -49,25 +47,42 @@ process.on("uncaughtException", (error) => {
     process.exit(1);
 });
 app.post("/followers", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { user, type } = req.body.params;
+    const { user, type, followers_list, following_list } = req.body;
     let response;
-    if (type === 1) {
-        response = yield type1(user);
-    }
-    else {
-        response = yield type2(user);
+    switch (type) {
+        case 0:
+            response = yield type0(followers_list, following_list);
+            break;
+        case 1:
+            response = yield type1(user);
+            break;
+        case 2:
+            response = yield type2(user);
+            break;
+        default:
+            break;
     }
     return res.json(response);
 }));
+function type0(followers_list, following_list) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let set1 = new Set(followers_list);
+        let set2 = new Set(following_list);
+        let difference = [...set1].filter((x) => !set2.has(x));
+        return {
+            message: "list of the diference between yor followers and following",
+            status: "success",
+            data: { list: difference },
+        };
+    });
+}
 function type1(user) {
     return __awaiter(this, void 0, void 0, function* () {
         let response;
-        (0, debug_1.default)();
-        return;
         let model = yield (0, userModel_1.default)(user);
         if (!_.isEmpty(model)) {
             (0, increaseOneInRequestTimes_1.default)(model);
-            if (!!(model === null || model === void 0 ? void 0 : model.unfollowersList)) {
+            if (model === null || model === void 0 ? void 0 : model.unfollowersList) {
                 response = {
                     message: (model === null || model === void 0 ? void 0 : model.unfollowersList.length) > 0
                         ? "unfollowers list"
@@ -104,7 +119,9 @@ function type1(user) {
             }
             else {
                 response = {
-                    message: !test[0] ? "username doesnt exists" : "username has private account",
+                    message: !test[0]
+                        ? "username doesnt exists"
+                        : "username has private account",
                     status: "error",
                 };
             }
@@ -122,13 +139,13 @@ function type2(user) {
                 let model = yield (0, userModel_1.default)(user);
                 if (model.followers) {
                     let c = model.followers.filter(function (element) {
-                        return data['followers'].includes(element);
+                        return data["followers"].includes(element);
                     });
-                    c = c.concat(data['followers'].filter(function (element) {
+                    c = c.concat(data["followers"].filter(function (element) {
                         return !model.followers.includes(element);
                     }));
                 }
-                let diference = data['following'].filter((x) => !data['followers'].includes(x));
+                let diference = data["following"].filter((x) => !data["followers"].includes(x));
                 response = {
                     message: "the diference of followers to following",
                     status: "success",
@@ -137,7 +154,9 @@ function type2(user) {
             }
             else {
                 response = {
-                    message: !test[0] ? "username doesnt exists" : "username has private account",
+                    message: !test[0]
+                        ? "username doesnt exists"
+                        : "username has private account",
                     status: "error",
                 };
             }
@@ -159,9 +178,16 @@ cron
     timezone: "America/Sao_Paulo",
 })
     .start();
-mongoose.connect(String(MONGOOSE)).then(app.listen(8000, () => {
-    console.log("Servidor Iniciado.");
-}));
+if (MONGOOSE) {
+    mongoose.connect(String(MONGOOSE)).then(app.listen(8000, () => {
+        console.log("Servidor Iniciado com conexão ao Atlas.");
+    }));
+}
+else {
+    app.listen(8000, () => {
+        console.log("Servidor Iniciado.");
+    });
+}
 //                                      .              .,,,,,,         .,,,,,,,,,,,,,,.
 //      #@.  (&.  .@,                 #@*              .****&@         (@/*********@@,
 //       ,@/@#    .@,               (@@@*                  .&@         *#        #@(
